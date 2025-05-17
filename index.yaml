@@ -3,6 +3,16 @@ entries:
   headscale:
   - apiVersion: v2
     appVersion: 1.16.0
+    created: "2025-05-17T11:47:53.461553688Z"
+    description: A Helm chart for gorizond
+    digest: 608ff289649f9d3d6de54969ba523377077eb0dccebf5aee82644b6b900d8540
+    name: headscale
+    type: application
+    urls:
+    - https://github.com/gorizond/fleet-gorizond-charts/releases/download/headscale-0.1.3/headscale-0.1.3.tgz
+    version: 0.1.3
+  - apiVersion: v2
+    appVersion: 1.16.0
     created: "2025-05-17T11:29:23.138191727Z"
     description: A Helm chart for gorizond
     digest: 89d61f7a152f292d81e8a9031a1c003009345531d3f12053a6041abcc3ebe33d
@@ -31,4 +41,4 @@ entries:
     urls:
     - https://github.com/gorizond/fleet-gorizond-charts/releases/download/headscale-0.1.0/headscale-0.1.0.tgz
     version: 0.1.0
-generated: "2025-05-17T11:29:23.13820432Z"
+generated: "2025-05-17T11:47:53.461571862Z"
