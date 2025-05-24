@@ -29,7 +29,7 @@ spec:
               headscale users create gorizond
               echo "create headscale token"
               token=`headscale preauthkeys create --user 1 --reusable --expiration 100y`
-              echo -e "$token" > /tmp/token
+              echo -en "$token" > /tmp/token
           volumeMounts:
             - name: config
               mountPath: /etc/headscale
@@ -42,11 +42,11 @@ spec:
           command: ["sh", "-c"]
           args:
             - |
+              echo "wait /tmp/token"
               until [ -f /tmp/token ]; do
-                echo "wait /tmp/token"
                 sleep 2
               done
-              kubectl create -n {{ .Release.Namespace }} secret generic "{{ include "headscale.fullname" . }}-token" --from-file=token=/tmp/token
+              kubectl create -n {{ .Release.Namespace }} secret generic "{{ include "headscale.fullname" . }}-token" --from-file=token=/tmp/token --dry-run=client -o yaml | kubectl apply -f -
           volumeMounts:
             - name: token
               mountPath: /tmp
