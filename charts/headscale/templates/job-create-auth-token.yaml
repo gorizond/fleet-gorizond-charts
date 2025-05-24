@@ -26,9 +26,9 @@ spec:
                 sleep 1
               done
               echo "create headscale user"
-              headscale users create {{ .Release.Name }}
+              headscale users create gorizond
               echo "create headscale token"
-              token=`headscale preauthkeys create --user {{ .Release.Name }} --reusable --expiration 100y`
+              token=`headscale preauthkeys create --user 1 --reusable --expiration 100y`
               echo -e "$token" > /tmp/token
           volumeMounts:
             - name: config
