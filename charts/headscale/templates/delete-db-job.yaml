@@ -5,7 +5,7 @@ metadata:
   labels:
     {{- include "headscale.labels" . | nindent 4 }}
   annotations:
-    "helm.sh/hook": pre-delete
+    "helm.sh/hook": post-delete
     "helm.sh/hook-weight": "-5"
     "helm.sh/hook-delete-policy": hook-succeeded
 spec:
