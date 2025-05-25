@@ -1,0 +1,171 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "k3s.fullname" . }}
+  labels:
+    {{- include "k3s.labels" . | nindent 4 }}
+spec:
+  {{- if not .Values.autoscaling.enabled }}
+  replicas: {{ .Values.replicaCount }}
+  {{- end }}
+  selector:
+    matchLabels:
+      {{- include "k3s.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        {{- include "k3s.labels" . | nindent 8 }}
+        {{- with .Values.podLabels }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: {{ include "k3s.serviceAccountName" . }}
+      {{- with .Values.podSecurityContext }}
+      securityContext:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      containers:
+        - args:
+            - tailscaled
+          image: "{{ .Values.image.tailscale.repository }}:{{ .Values.image.tailscale.tag }}"
+          imagePullPolicy: {{ .Values.image.tailscale.pullPolicy }}
+          name: tailscaled
+          {{- with .Values.resources.tailscale }}
+          resources:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              add:
+                - NET_ADMIN
+                - NET_RAW
+            privileged: false
+            readOnlyRootFilesystem: false
+            runAsNonRoot: false
+          volumeMounts:
+            - mountPath: /dev/net/tun
+              name: dev-tun
+            - mountPath: /var/run/tailscale
+              name: tailscale-socket
+            - mountPath: /var/lib/tailscale
+              name: tailscale-data
+            - mountPath: /var/lib
+              name: var-lib
+        - name: k3s
+          command:
+            - k3s
+            - server
+          args:
+            - '--disable-agent'
+            - '--node-taint=CriticalAddonsOnly=true:NoExecute'
+            - '--https-listen-port={{ $.Values.service.port }}'
+            - '--egress-selector-mode=cluster'
+            - '--disable=servicelb'
+            - '--disable=traefik'
+            - '--disable=local-storage'
+            - '--disable=metrics-server'
+            - '--cluster-cidr=10.44.0.0/16'
+            - '--service-cidr=10.45.0.0/16'
+            {{- with (index .Values.ingress.hosts 0) }}
+            - '--tls-san=api-{{ .host }}'
+            - '--vpn-auth=name=tailscale,joinKey={{ $.Values.token }},controlServerURL=http://headscale-{{ .host }}'
+            {{- end }}
+          {{- with .Values.args }}
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- with .Values.securityContext }}
+          securityContext:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          image: "{{ .Values.image.k3s.repository }}:{{ .Values.image.k3s.tag }}"
+          imagePullPolicy: {{ .Values.image.k3s.pullPolicy }}
+          env:
+            - name: PATH
+              value: "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/bin/aux:/tailscale-binary"
+            - name: K3S_DATASTORE_ENDPOINT
+              value: {{ $.Values.database }}
+            - name: K3S_TOKEN
+              value: {{ $.Values.token }}
+          ports:
+            - name: http
+              containerPort: {{ .Values.service.port }}
+              protocol: TCP
+          {{- with .Values.livenessProbe }}
+          livenessProbe:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- with .Values.readinessProbe }}
+          readinessProbe:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- with .Values.resources.k3s }}
+          resources:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          volumeMounts:
+            - mountPath: /tailscale-binary
+              name: tailscale-binary
+            - mountPath: /var/run/tailscale
+              name: tailscale-socket
+            - mountPath: /var/lib/tailscale
+              name: tailscale-data
+            - mountPath: /var/run/headscale
+              name: headscale-secret
+            - mountPath: /dev/net/tun
+              name: dev-tun
+            - mountPath: /var/lib
+              name: var-lib
+          {{- with .Values.volumeMounts }}
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+      initContainers:
+        - args:
+            - '-c'
+            - cp /usr/local/bin/tailscale /tailscale-binary/tailscale
+          command:
+            - sh
+          image: "{{ .Values.image.tailscale.repository }}:{{ .Values.image.tailscale.tag }}"
+          imagePullPolicy: {{ .Values.image.tailscale.pullPolicy }}
+          name: tailscale-binary
+          volumeMounts:
+            - mountPath: /tailscale-binary
+              name: tailscale-binary
+      volumes:
+        - hostPath:
+            path: /dev/net/tun
+            type: CharDevice
+          name: dev-tun
+        - emptyDir: {}
+          name: tailscale-binary
+        - emptyDir: {}
+          name: tailscale-socket
+        - emptyDir: {}
+          name: tailscale-data
+        - emptyDir: {}
+          name: headscale-socket
+        - emptyDir: {}
+          name: var-lib
+      {{- with .Values.volumes }}
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}

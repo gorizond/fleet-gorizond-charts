@@ -1,29 +1,27 @@
-# Default values for headscale.
+# Default values for k3s.
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
 
 # This will set the replicaset count more information can be found here: https://kubernetes.io/docs/concepts/workloads/controllers/replicaset/
 replicaCount: 1
-
+database: mysql://root:@tcp(localhost:3306)/kine
+token: t0ken
 # This sets the container image more information can be found here: https://kubernetes.io/docs/concepts/containers/images/
 image:
-  repository: headscale/headscale
-  # This sets the pull policy for images.
-  pullPolicy: IfNotPresent
-  # Overrides the image tag whose default is the chart appVersion.
-  tag: v0.26
-  tagDebug: v0.26-debug
+  k3s:
+    repository: rancher/k3s
+    # This sets the pull policy for images.
+    pullPolicy: IfNotPresent
+    # Overrides the image tag whose default is the chart appVersion.
+    tag: v1.32.4-k3s1
+  tailscale:
+    repository: tailscale/tailscale
+    # This sets the pull policy for images.
+    pullPolicy: IfNotPresent
+    # Overrides the image tag whose default is the chart appVersion.
+    tag: v1.84.0
 
-noise_private: ""
-server_schema: http
-
-database:
-  host: postgres
-  port: 5432
-  name: headscale_db
-  user: headscale
-  pass: passw0rd
-  ssl: false
+args: []
 # This is for the secrets for pulling an image from a private repository more information can be found here: https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/
 imagePullSecrets: []
 # This is to override the chart name.
@@ -65,17 +63,17 @@ service:
   # This sets the service type more information can be found here: https://kubernetes.io/docs/concepts/services-networking/service/#publishing-services-service-types
   type: ClusterIP
   # This sets the ports more information can be found here: https://kubernetes.io/docs/concepts/services-networking/service/#field-spec-ports
-  port: 8080
+  port: 6443
 
 # This block is for setting up the ingress for more information can be found here: https://kubernetes.io/docs/concepts/services-networking/ingress/
 ingress:
   enabled: true
   className: ""
-  annotations: {}
-    # kubernetes.io/ingress.class: nginx
-    # kubernetes.io/tls-acme: "true"
+  annotations:
+    nginx.ingress.kubernetes.io/backend-protocol: HTTPS
+    nginx.ingress.kubernetes.io/ssl-passthrough: "true"
   hosts:
-    - host: headscale-deploy.workspace.gorizond.cluster
+    - host: deploy.workspace.gorizond.cluster
       paths:
         - path: /
           pathType: ImplementationSpecific
@@ -85,16 +83,20 @@ ingress:
   #      - chart-example.local
 
 resources:
-  # We usually recommend not to specify default resources and to leave this as a conscious
-  # choice for the user. This also increases chances charts run on environments with little
-  # resources, such as Minikube. If you do want to specify resources, uncomment the following
-  # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
-  limits:
-    cpu: 100m
-    memory: 128Mi
-  requests:
-    cpu: 10m
-    memory: 128Mi
+  k3s:
+    limits:
+      cpu: 100m
+      memory: 512Mi
+    requests:
+      cpu: 10m
+      memory: 512Mi
+  tailscale:
+    limits:
+      cpu: 100m
+      memory: 128Mi
+    requests:
+      cpu: 10m
+      memory: 64Mi
 
 # This is to setup the liveness and readiness probes more information can be found here: https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/
 livenessProbe:
