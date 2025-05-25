@@ -76,9 +76,9 @@ spec:
             - '--cluster-cidr=10.44.0.0/16'
             - '--service-cidr=10.45.0.0/16'
             {{- with (index .Values.ingress.hosts 0) }}
-            - '--tls-san=api-{{ .host }}'
-            - '--vpn-auth=name=tailscale,joinKey={{ $.Values.token }},controlServerURL=http://headscale-{{ .host }}'
+            - '--tls-san={{ .host }}'
             {{- end }}
+            - '--vpn-auth=name=tailscale,joinKey={{ $.Values.token }},controlServerURL={{ $.Values.headscaleControlServerURL }}'
           {{- with .Values.args }}
             {{- toYaml . | nindent 12 }}
           {{- end }}

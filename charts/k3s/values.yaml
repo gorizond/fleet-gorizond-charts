@@ -6,6 +6,7 @@
 replicaCount: 1
 database: mysql://root:@tcp(localhost:3306)/kine
 token: t0ken
+headscaleControlServerURL: http://headscale-deploy.workspace.gorizond.cluster
 # This sets the container image more information can be found here: https://kubernetes.io/docs/concepts/containers/images/
 image:
   k3s:
@@ -73,7 +74,7 @@ ingress:
     nginx.ingress.kubernetes.io/backend-protocol: HTTPS
     nginx.ingress.kubernetes.io/ssl-passthrough: "true"
   hosts:
-    - host: deploy.workspace.gorizond.cluster
+    - host: api-deploy.workspace.gorizond.cluster
       paths:
         - path: /
           pathType: ImplementationSpecific
