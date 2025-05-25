@@ -118,8 +118,6 @@ spec:
               name: tailscale-socket
             - mountPath: /var/lib/tailscale
               name: tailscale-data
-            - mountPath: /var/run/headscale
-              name: headscale-secret
             - mountPath: /dev/net/tun
               name: dev-tun
             - mountPath: /var/lib
@@ -150,8 +148,6 @@ spec:
           name: tailscale-socket
         - emptyDir: {}
           name: tailscale-data
-        - emptyDir: {}
-          name: headscale-socket
         - emptyDir: {}
           name: var-lib
       {{- with .Values.volumes }}
