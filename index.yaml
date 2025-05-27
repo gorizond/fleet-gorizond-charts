@@ -124,6 +124,16 @@ entries:
   k3s:
   - apiVersion: v2
     appVersion: 1.16.0
+    created: "2025-05-27T16:17:26.309183166Z"
+    description: A Helm chart for gorizond
+    digest: ce77799ff236f6ca356449871b28219061a9d99acaf39ccaed61af76d2e4cf22
+    name: k3s
+    type: application
+    urls:
+    - https://github.com/gorizond/fleet-gorizond-charts/releases/download/k3s-0.1.3/k3s-0.1.3.tgz
+    version: 0.1.3
+  - apiVersion: v2
+    appVersion: 1.16.0
     created: "2025-05-25T20:04:16.800430488Z"
     description: A Helm chart for gorizond
     digest: a9461482a6339f5236499ae0843c1308468b8787e88cc7a98475c72a16f26997
@@ -152,4 +162,4 @@ entries:
     urls:
     - https://github.com/gorizond/fleet-gorizond-charts/releases/download/k3s-0.1.0/k3s-0.1.0.tgz
     version: 0.1.0
-generated: "2025-05-25T20:04:16.800459993Z"
+generated: "2025-05-27T16:17:26.309220255Z"
