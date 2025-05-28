@@ -3,6 +3,16 @@ entries:
   cleanup:
   - apiVersion: v2
     appVersion: 1.16.0
+    created: "2025-05-28T18:43:09.698184623Z"
+    description: A Helm chart for gorizond
+    digest: ea845c364bce5d32885dfec3de254156512acb2b93510f67a2876e674257879d
+    name: cleanup
+    type: application
+    urls:
+    - https://github.com/gorizond/fleet-gorizond-charts/releases/download/cleanup-0.1.3/cleanup-0.1.3.tgz
+    version: 0.1.3
+  - apiVersion: v2
+    appVersion: 1.16.0
     created: "2025-05-28T18:22:09.994673595Z"
     description: A Helm chart for gorizond
     digest: 340565d842db92c297338424617b48eb7e7469ea4c0d04250bba83048c4555cf
@@ -223,4 +233,4 @@ entries:
     urls:
     - https://github.com/gorizond/fleet-gorizond-charts/releases/download/k3s-0.1.0/k3s-0.1.0.tgz
     version: 0.1.0
-generated: "2025-05-28T18:22:09.994719822Z"
+generated: "2025-05-28T18:43:09.698253612Z"
