@@ -1,0 +1,45 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: {{ include "cleanup.fullname" . }}
+  labels:
+    {{- include "cleanup.labels" . | nindent 4 }}
+spec:
+  schedule: "*/5 * * * *"
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+          - name: script-runner
+            {{- $type := .Values.type }}
+            {{- $image := index .Values.image $type }}
+            {{- if $image }}
+            image: {{ $image.repository }}:{{ $image.tag }}
+            {{- else }}
+            image: postgres
+            {{- end }}
+            command: ["/bin/sh", "-c"]
+            args:
+            - |
+              /bin/bash /scripts/{{ .Values.type }}.sh
+            volumeMounts:
+            - name: script-volume
+              mountPath: /scripts
+          restartPolicy: OnFailure
+          volumes:
+          - name: script-volume
+            configMap:
+              name: {{ include "cleanup.fullname" . }}
+          {{- with .Values.nodeSelector }}
+          nodeSelector:
+            {{- toYaml . | nindent 8 }}
+          {{- end }}
+          {{- with .Values.affinity }}
+          affinity:
+            {{- toYaml . | nindent 8 }}
+          {{- end }}
+          {{- with .Values.tolerations }}
+          tolerations:
+            {{- toYaml . | nindent 8 }}
+          {{- end }}
