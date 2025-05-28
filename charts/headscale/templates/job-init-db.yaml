@@ -37,5 +37,33 @@ spec:
                 echo "Waiting for PostgreSQL to be ready..."
                 sleep 2;
               done;
-              psql -h $POSTGRES_HOST -p $POSTGRES_PORT -U $POSTGRES_USER -d gorizond_truncate -c "CREATE DATABASE $POSTGRES_DB;" || echo true 
+              psql -h $POSTGRES_HOST -p $POSTGRES_PORT -U $POSTGRES_USER -d gorizond_truncate -c "CREATE DATABASE $POSTGRES_DB;" || echo true
+              echo 1 > /tmp/done
+          volumeMounts:
+            - name: tmp-storage
+              mountPath: /tmp
+        - name: headscale-init-db
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tagDebug }}"
+          command: ["sh", "-c"]
+          args:
+            - |-
+              until [ -f /tmp/done ]; do
+                sleep 2
+              done
+              headscale serve &
+              until nc -zv 0.0.0.0:8080; do
+                sleep 2
+              done
+          volumeMounts:
+            - name: config
+              mountPath: "/etc/headscale/"
+              readOnly: true
+            - name: tmp-storage
+              mountPath: /tmp
       restartPolicy: OnFailure
+      volumes:
+        - name: tmp-storage
+          emptyDir: {}
+        - name: config
+          secret:
+            secretName: {{ include "headscale.fullname" . }}
