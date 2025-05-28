@@ -5,6 +5,9 @@ metadata:
   name: {{ include "headscale.fullname" . }}
   labels:
     {{- include "headscale.labels" . | nindent 4 }}
+  annotations:
+    "helm.sh/hook": pre-install,pre-upgrade
+    "helm.sh/hook-delete-policy": before-hook-creation
 stringData:
   noise_private.key: {{ .Values.noise_private }}
   config.yaml: |
