@@ -19,6 +19,7 @@ spec:
             {{- else }}
             image: postgres
             {{- end }}
+            imagePullPolicy: {{ .Values.image.pullPolicy }}
             command: ["/bin/sh", "-c"]
             args:
             - |
