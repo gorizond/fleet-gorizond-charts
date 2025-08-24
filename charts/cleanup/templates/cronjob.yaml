@@ -16,10 +16,11 @@ spec:
             {{- $image := index .Values.image $type }}
             {{- if $image }}
             image: {{ $image.repository }}:{{ $image.tag }}
+            imagePullPolicy: {{ $image.pullPolicy }}
             {{- else }}
             image: postgres
+            imagePullPolicy: IfNotPresent
             {{- end }}
-            imagePullPolicy: {{ .Values.image.pullPolicy }}
             command: ["/bin/sh", "-c"]
             {{- with .Values.resources }}
             resources:
@@ -28,6 +29,8 @@ spec:
             args:
             - |
               /bin/bash /scripts/{{ .Values.type }}.sh
+            terminationMessagePath: /dev/termination-log
+            terminationMessagePolicy: File
             volumeMounts:
             - name: script-volume
               mountPath: /scripts
